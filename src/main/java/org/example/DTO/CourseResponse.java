@@ -15,9 +15,9 @@ public record CourseResponse(
         Integer labHours,
         Integer designHours,
         String category,
-        String openingDept,
-        String targetDept,
-        String gradeLevel,
+        String opening,
+        String target,
+        String grade,
         String professor,
         String rawTimeText
 ) {
@@ -33,9 +33,9 @@ public record CourseResponse(
                 .labHours(c.getLabHours())
                 .designHours(c.getDesignHours())
                 .category(c.getCategory())
-                .openingDept(c.getOpening())
-                .targetDept(c.getTarget())
-                .gradeLevel(c.getGrade())
+                .opening(c.getOpening())
+                .target(c.getTarget())
+                .grade(c.getGrade())
                 .professor(c.getProfessor())
                 .rawTimeText(c.getRawTimeText())
                 .build();

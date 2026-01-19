@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
-   // List<Course> findByTermIdOrderByOpeningAscCourseNameAscSectionAsc(Long termId);
+    List<Course> findByTermIdOrderByOpeningAscCourseNameAscSectionAsc(Long termId);
     List<Course> findByTermId(Long termId);
     long countByTermId(Long termId);
     List<Course> findByTermId(Long termId, Sort sort);
