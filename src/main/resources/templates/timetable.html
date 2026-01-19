@@ -13,8 +13,14 @@
 </head>
 <body>
 <h1>시간표 (termId: <span th:text="${termId}"></span>)</h1>
-<p><a th:href="@{/courses(termId=${termId})}">강의 목록으로</a></p>
+<h1 th:text="'시간표: ' + ${timetable.title} + ' (id=' + ${timetable.id} + ')'"></h1>
 
+<p>termId: <span th:text="${termId}"></span></p>
+<p>
+    <a th:href="@{/timetables/new(termId=${termId})}">새 시간표</a>
+    |
+    <a th:href="@{/timetable/{id}/pick(id=${timetable.id})}">강의 담으러 가기</a>
+</p>
 <table>
     <thead>
     <tr>

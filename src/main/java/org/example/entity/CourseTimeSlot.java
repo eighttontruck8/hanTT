@@ -22,10 +22,4 @@ public class CourseTimeSlot {
     private int endPeriod;
     private int endHalf;
     private boolean online;
-
-    public void setDayOrder(int order) {
-    }
-
-    public void setDayKr(String name) {
-    }
 }

@@ -18,7 +18,7 @@ public record CourseResponse(
         String category,
         String openingDept,
         String targetDept,
-        Integer gradeLevel,
+        String gradeLevel,
         String professor,
         String rawTimeText
 ) {

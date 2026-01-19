@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface CourseTimeSlotRepository extends JpaRepository<CourseTimeSlot, Long> {
     List<CourseTimeSlot> findByCourseIdIn(List<Long> courseIds);
+    List<CourseTimeSlot> findByCourseId(Long courseId);
     void deleteByCourseIdIn(List<Long> courseIds);
 }

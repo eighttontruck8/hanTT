@@ -1,12 +1,10 @@
 package org.example.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "courses"
         ,
@@ -55,7 +53,7 @@ public class Course {
     private String opening;
 
     @Column(name="grade_level")
-    private Integer grade;
+    private String grade;
 
     @Column(name="professor", length=50)
     private String professor;
@@ -68,4 +66,78 @@ public class Course {
 
     @Column(name="updated_at", nullable=false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+    private Course(
+            Long termId,
+            String courseCode,
+            String courseName,
+            Integer section,
+            Integer credits,
+            String professor,
+            String rawTimeText,
+            Integer lectureHours,
+            Integer labHours,
+            Integer designHours,
+            Integer capacity,
+            String category,
+            String opening,
+            String target,
+            String grade
+    ) {
+        this.termId = termId;
+        this.courseCode = courseCode;
+        this.courseName = courseName;
+        this.section = section;
+        this.credits = credits;
+        this.professor = professor;
+        this.rawTimeText = rawTimeText;
+        this.lectureHours = lectureHours;
+        this.labHours = labHours;
+        this.designHours = designHours;
+        this.capacity = capacity;
+        this.category = category;
+        this.opening = opening;
+        this.target = target;
+        this.grade = grade;
+    }
+
+    public Course() {
+
+    }
+
+
+    public static Course create(
+            Long termId,
+            String courseCode,
+            String courseName,
+            Integer section,
+            Integer credits,
+            String professor,
+            String rawTimeText,
+            Integer lectureHours,
+            Integer labHours,
+            Integer designHours,
+            Integer capacity,
+            String category,
+            String opening,
+            String target,
+            String grade
+    ) {
+        return new Course(
+                termId,
+                courseCode.trim(),
+                courseName.trim(),
+                section,
+                credits,
+                professor,
+                rawTimeText,
+                lectureHours,
+                labHours,
+                designHours,
+                capacity,
+                category,
+                opening,
+                target,
+                grade
+        );
+    }
 }

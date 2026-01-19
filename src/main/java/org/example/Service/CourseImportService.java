@@ -46,10 +46,9 @@ public class CourseImportService {
             // 0행이 헤더라고 가정하고 1행부터
             for (int r = 1; r <= sheet.getLastRowNum(); r++) {
                 Row row = sheet.getRow(r);
-                for (int i = 0; i < row.getLastCellNum(); i++) {
-                    System.out.println(i + " : " + row.getCell(i));
-                }
+
                 if (row == null) continue;
+                System.out.println("row=" + r + ", code=" + getString(row, 1) + ", grade=" + getInt(row, 12));
 
                 String  courseCode = getString(row, 1);
                 String  courseName = getString(row, 2);
@@ -62,32 +61,30 @@ public class CourseImportService {
                 String category = getString(row, 9);
                 String opening = getString(row, 10);
                 String target = getString(row, 11);
-                Integer grade = getInt(row, 12);
+                String grade = getString(row, 12);
                 String  professor  = getString(row, 13);
-                String  rawTime    = getString(row, 14);
-
+                String  rawTimeText    = getString(row, 14);
 
                 if (courseCode == null || courseCode.isBlank()) continue;
                 if (courseName == null || courseName.isBlank()) continue;
                 if (section == null) section = 0;
 
-                Course c = new Course();
-                c.setTermId(term.getId());
-                c.setCourseCode(courseCode.trim());
-                c.setCourseName(courseName.trim());
-                c.setSection(section);
-                c.setCredits(credits);
-                c.setProfessor(professor);
-                c.setRawTimeText(rawTime);
-                c.setLectureHours(lectureHours);
-                c.setLabHours(labHours);
-                c.setDesignHours(designHours);
-                c.setCapacity(capacity);
-                c.setCategory(category);
-                c.setOpening (opening);
-                c.setTarget (target);
-                c.setGrade (grade);
-
+                Course c =  Course.create(
+                        term.getId(),
+                        courseCode,
+                        courseName,
+                        section,
+                        credits,
+                        professor,
+                        rawTimeText,
+                        lectureHours,
+                        labHours,
+                        designHours,
+                        capacity,
+                        category,
+                        opening,
+                        target,
+                        grade);
 
                 try {
                     courseRepository.save(c);
@@ -97,7 +94,6 @@ public class CourseImportService {
                 }
             }
         }
-
         return saved;
     }
 
