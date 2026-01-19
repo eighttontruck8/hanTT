@@ -2,6 +2,7 @@ package org.example.Repository;
 
 import jakarta.transaction.Transactional;
 import org.example.entity.Course;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,8 +11,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
+   // List<Course> findByTermIdOrderByOpeningAscCourseNameAscSectionAsc(Long termId);
     List<Course> findByTermId(Long termId);
     long countByTermId(Long termId);
+    List<Course> findByTermId(Long termId, Sort sort);
 
     @Modifying
     @Transactional
