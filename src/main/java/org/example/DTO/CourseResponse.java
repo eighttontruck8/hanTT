@@ -5,7 +5,6 @@ import org.example.entity.Course;
 
 @Builder
 public record CourseResponse(
-        Long courseId,
         Long termId,
         String courseCode,
         String courseName,
@@ -24,7 +23,6 @@ public record CourseResponse(
 ) {
     public static CourseResponse from(Course c) {
         return CourseResponse.builder()
-                .courseId(c.getId())
                 .termId(c.getTermId())
                 .courseCode(c.getCourseCode())
                 .courseName(c.getCourseName())

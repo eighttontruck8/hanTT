@@ -17,21 +17,17 @@ import java.util.List;
 public class CoursePageController {
     private final CourseRepository courseRepository;
     private final CourseTimeSlotService courseTimeSlotService;
-//    @GetMapping("/courses")
-//    public String coursesPage(Model model) {
-//        model.addAttribute("courses", courseRepository.findAll());
-//        return "courses"; // templates/courses.html
-//    }
-@GetMapping("/courses")
-public String courses(@RequestParam(required = false) Long termId, Model model) {
-    List<Course> courses = (termId == null)
-            ? courseRepository.findAll()
-            : courseRepository.findByTermId(termId);
 
-    model.addAttribute("termId", termId);
-    model.addAttribute("courses", courses);
-    return "courses";
-}
+    @GetMapping("/courses")
+    public String courses(@RequestParam(required = false) Long termId, Model model) {
+        List<Course> courses = (termId == null)
+                ? courseRepository.findAll()
+                : courseRepository.findByTermId(termId);
+
+        model.addAttribute("termId", termId);
+        model.addAttribute("courses", courses);
+        return "courses";
+    }
 
     @PostMapping("/courses/slots/build")
     public String buildSlots(@RequestParam Long termId) {

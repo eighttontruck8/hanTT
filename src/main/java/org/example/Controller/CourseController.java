@@ -20,6 +20,7 @@ public class CourseController {
     private final CourseImportService importService;
     private final CourseService courseService;
 
+    // POST : 강의 목록 업로드
     @PostMapping(value="/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, Object> importCourses(
             @RequestParam("file") MultipartFile file,
@@ -30,6 +31,8 @@ public class CourseController {
         int saved = importService.importExcel(file, year, semester);
         return Map.of("saved", saved);
     }
+
+    // GET : 강의 목록 조회
     @GetMapping
     public List<CourseResponse> getCourses(@RequestParam(required = false) Long termId) {
         return courseService.getAll(termId);

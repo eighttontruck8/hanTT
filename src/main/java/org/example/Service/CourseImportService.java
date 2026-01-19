@@ -36,7 +36,6 @@ public class CourseImportService {
 
 
         int saved = 0;
-        int skipped = 0;
 
         try (InputStream is = file.getInputStream();
              Workbook wb = WorkbookFactory.create(is)) {
@@ -90,7 +89,6 @@ public class CourseImportService {
                     courseRepository.save(c);
                     saved++;
                 } catch (DataIntegrityViolationException e) {
-                    skipped++;
                 }
             }
         }

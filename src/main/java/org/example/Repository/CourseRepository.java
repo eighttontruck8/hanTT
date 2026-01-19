@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findByTermId(Long termId);
-    List<Course> findByIdIn(List<Long> ids);
     long countByTermId(Long termId);
 
     @Modifying
