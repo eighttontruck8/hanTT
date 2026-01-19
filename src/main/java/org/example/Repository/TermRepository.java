@@ -7,4 +7,7 @@ import java.util.Optional;
 
 public interface TermRepository extends JpaRepository<Term, Long> {
     Optional<Term> findByYearAndSemester(int year, int semester);
+    Optional<Term> findFirstByOrderByYearDescSemesterDesc();
+    Optional<Term> findTopByOrderByIdDesc();
+
 }

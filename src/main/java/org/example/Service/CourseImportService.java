@@ -3,7 +3,6 @@ package org.example.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
-import org.example.DTO.CourseResponse;
 import org.example.Repository.CourseRepository;
 import org.example.Repository.TermRepository;
 import org.example.entity.Term;
@@ -14,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

@@ -27,6 +27,8 @@ public class TimetableService {
                     return timetableRepository.save(t);
                 });
     }
+
+    // 시간표 조회
     @Transactional
     public Timetable getTimetable(Long timetableId) {
         return timetableRepository.findById(timetableId)
@@ -34,6 +36,7 @@ public class TimetableService {
                         new NoSuchElementException("시간표를 찾을 수 없습니다. id=" + timetableId)
                 );
     }
+
     // 시간표 랜더링
     public Map<String, List<String>> buildCellMap(Long timetableId, int maxPeriod) {
         List<TimetableCourse> tcs = timetableCourseRepository.findByTimetableId(timetableId);
@@ -60,7 +63,7 @@ public class TimetableService {
                 for (TimeCell cell : cells) {
                     // key: "1-3A" 처럼 만들기(요일숫자-교시-half)
                     // half: 0(A),1(B)
-                    String key = cell.day() + "-" + cell.period() + (cell.half() == 0 ? "A" : "B");
+                    String key = cell.dayKr() + "-" + cell.period() + (cell.half() == 0 ? "A" : "B");
 
                     String label = course.getCourseName()
                             + " (" + course.getCourseCode() + "-" + course.getSection() + ") "

@@ -19,7 +19,7 @@ public class TimeParser {
 
         while (m.find()) {
             // 1. 요일
-            DayKR day = DayKR.from(m.group(1)); // "월","화",...
+            int day = DayKR.from(m.group(1)).getOrder();
 
             // 2. 시작 교시
             int sp = Integer.parseInt(m.group(2));
@@ -31,7 +31,6 @@ public class TimeParser {
 
             // 4. TimeSlot 생성
             slots.add(new TimeSlot(day, sp, sh, ep, eh, online));
-
         }
         return slots;
     }

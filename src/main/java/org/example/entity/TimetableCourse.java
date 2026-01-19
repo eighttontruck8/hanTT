@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 public class TimetableCourse {
 
     @Id
+    @Column(name = "timetable_course_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -32,5 +33,9 @@ public class TimetableCourse {
     public TimetableCourse(Long timetableId, Long courseId) {
         this.timetableId = timetableId;
         this.courseId = courseId;
+    }
+
+    public static TimetableCourse create(Long timetableId, Long courseId) {
+        return new TimetableCourse(timetableId, courseId);
     }
 }

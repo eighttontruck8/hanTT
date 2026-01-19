@@ -40,6 +40,8 @@ public class Timetable {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    protected Timetable() { }
+
     public Timetable(Long userId, Long termId, String title) {
         this.userId = userId;
         this.termId = termId;
@@ -48,9 +50,14 @@ public class Timetable {
         this.themeColor = "BLUE";
     }
 
-    protected Timetable() { }
-
     public static Timetable create(Long userId, Long termId, String title) {
-        return new Timetable(userId, termId, title);
+        String safe = (title == null || title.isBlank()) ? "새 시간표" : title.trim();
+        return new Timetable(userId, termId, safe);
     }
+
+    public void changeTitle(String title) {
+        String safe = (title == null || title.isBlank()) ? "새 시간표" : title.trim();
+        this.title = safe;
+    }
+
 }

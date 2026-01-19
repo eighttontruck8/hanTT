@@ -36,7 +36,7 @@ public class CourseTimeSlotService {
                 CourseTimeSlot e = new CourseTimeSlot();
                 e.setCourseId(c.getId());
 
-                e.setDay(ts.day().getOrder());
+                e.setDay(ts.day());
                 e.setStartPeriod(ts.sp());
                 e.setStartHalf(ts.sh());
                 e.setEndPeriod(ts.ep());
