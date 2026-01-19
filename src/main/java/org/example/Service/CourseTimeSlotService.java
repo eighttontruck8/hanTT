@@ -2,8 +2,8 @@ package org.example.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.DTO.TimeParser;
-import org.example.DTO.TimeSlot;
+import org.example.Time.TimeParser;
+import org.example.Time.TimeSlot;
 import org.example.Repository.CourseRepository;
 import org.example.Repository.CourseTimeSlotRepository;
 import org.example.entity.Course;
@@ -23,7 +23,7 @@ public class CourseTimeSlotService {
     public int buildSlotsForTerm(Long termId) {
         List<Course> courses = courseRepository.findByTermId(termId);
 
-        // term 전체 재생성 방식(깔끔)
+        // term 전체 재생성
         List<Long> courseIds = courses.stream().map(Course::getId).toList();
         slotRepository.deleteByCourseIdIn(courseIds);
 
@@ -35,12 +35,13 @@ public class CourseTimeSlotService {
             for (TimeSlot ts : slots) {
                 CourseTimeSlot e = new CourseTimeSlot();
                 e.setCourseId(c.getId());
-                e.setDayOfWeek(ts.getDayOfWeek());
-                e.setStartPeriod(ts.getStartPeriod());
-                e.setStartHalf(ts.getStartHalf());
-                e.setEndPeriod(ts.getEndPeriod());
-                e.setEndHalf(ts.getEndHalf());
-                e.setOnline(ts.isOnline());
+
+                e.setDay(ts.day().getOrder());
+                e.setStartPeriod(ts.sp());
+                e.setStartHalf(ts.sh());
+                e.setEndPeriod(ts.ep());
+                e.setEndHalf(ts.eh());
+                e.setOnline(ts.online());
 
                 slotRepository.save(e);
                 saved++;

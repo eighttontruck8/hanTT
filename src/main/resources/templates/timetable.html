@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>시간표</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 6px; vertical-align: top; }
+        th { background: #f6f6f6; }
+        .cell { font-size: 12px; line-height: 1.3; }
+        .conflict { background: #ffe3e3; }
+    </style>
+</head>
+<body>
+<h1>시간표 (termId: <span th:text="${termId}"></span>)</h1>
+<p><a th:href="@{/courses(termId=${termId})}">강의 목록으로</a></p>
+
+<table>
+    <thead>
+    <tr>
+        <th>교시</th>
+        <th th:each="d : ${days}" th:text="${d}"></th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="p : ${periods}">
+        <th th:text="${p}"></th>
+
+        <!-- 각 요일 칸: A+B를 한 칸에 합쳐서 보여줌 (너무 길면 A/B 분리도 가능) -->
+        <td th:each="d : ${days}">
+            <div class="cell"
+                 th:with="
+             keyA=${d + '-' + p + 'A'},
+             keyB=${d + '-' + p + 'B'},
+             listA=${cellMap[keyA]},
+             listB=${cellMap[keyB]},
+             sizeA=${listA == null ? 0 : #lists.size(listA)},
+             sizeB=${listB == null ? 0 : #lists.size(listB)}
+           "
+                 th:classappend="${(sizeA + sizeB) > 1} ? ' conflict' : ''">
+
+                <div><b th:text="${d} + ' ' + ${p} + 'A'"></b></div>
+                <div th:if="${listA != null}" th:each="x : ${listA}" th:text="${x}"></div>
+
+                <hr/>
+
+                <div><b th:text="${d} + ' ' + ${p} + 'B'"></b></div>
+                <div th:if="${listB != null}" th:each="x : ${listB}" th:text="${x}"></div>
+
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

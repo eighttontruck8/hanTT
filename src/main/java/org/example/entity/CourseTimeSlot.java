@@ -16,10 +16,16 @@ public class CourseTimeSlot {
     @Column(name="course_id", nullable=false)
     private Long courseId;
 
-    private int dayOfWeek;
+    private int day;
     private int startPeriod;
-    private char startHalf;
+    private int startHalf;
     private int endPeriod;
-    private char endHalf;
-    private boolean isOnline;
+    private int endHalf;
+    private boolean online;
+
+    public void setDayOrder(int order) {
+    }
+
+    public void setDayKr(String name) {
+    }
 }
