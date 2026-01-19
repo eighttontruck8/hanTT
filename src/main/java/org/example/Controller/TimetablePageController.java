@@ -28,6 +28,7 @@ public class TimetablePageController {
         model.addAttribute("cellMap", vm.cellMap());
         model.addAttribute("days", List.of("월","화","수","목","금"));
         model.addAttribute("periods", buildPeriods(vm.maxPeriod()));
+        model.addAttribute("periodTimeMap", buildPeriodTimeMap(vm.maxPeriod()));
 
         return "timetable";
     }
@@ -59,7 +60,31 @@ public class TimetablePageController {
         return "redirect:/timetable?timetableId=" + id;
     }
 
+    // 교시 표시
     private List<Integer> buildPeriods(int maxPeriod) {
         return java.util.stream.IntStream.rangeClosed(1, maxPeriod).boxed().toList();
     }
+
+    // 시간 표시
+    private java.util.Map<Integer, String> buildPeriodTimeMap(int maxPeriod) {
+        java.util.Map<Integer, String> map = new java.util.LinkedHashMap<>();
+        // 예시: 1교시 09:00 시작, 교시당 60분이라고 가정
+        int startHour = 9;
+        int startMin = 0;
+
+        for (int p = 1; p <= maxPeriod; p++) {
+            int s = (startHour * 60 + startMin) + (p - 1) * 60;
+            int e = s + 60;
+
+            map.put(p, formatTime(s) + "-" + formatTime(e));
+        }
+        return map;
+    }
+
+    private String formatTime(int minutes) {
+        int h = minutes / 60;
+        int m = minutes % 60;
+        return String.format("%02d:%02d", h, m);
+    }
+
 }

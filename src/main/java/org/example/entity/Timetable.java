@@ -5,14 +5,11 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+import static java.time.LocalDateTime.now;
+
 @Getter
 @Entity
 @Table(name = "timetables")
-//        , uniqueConstraints = {
-//        @UniqueConstraint(
-//                name = "uq_terms_year_semester",
-//                columnNames = {"user", "term_id"} // 한 학기에 한 시간표만 만들도록 제한
-//        )}
 public class Timetable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +17,7 @@ public class Timetable {
     private Long id;
 
     @Column(name = "user_id")
-    private Long userId; // 로그인 전이면 null 허용(테이블도 null 허용이어야 함)
+    private Long userId;
 
     @Column(name = "term_id")
     private Long termId;
@@ -29,7 +26,7 @@ public class Timetable {
     private String title;
 
     @Column(name = "visibility")
-    private String visibility; // PUBLIC/PRIVATE 등(네 DB 타입에 맞춰)
+    private String visibility; // PUBLIC/PRIVATE
 
     @Column(name = "theme_color")
     private String themeColor;
@@ -47,7 +44,9 @@ public class Timetable {
         this.termId = termId;
         this.title = (title == null || title.isBlank()) ? "새 시간표" : title;
         this.visibility = "PUBLIC";
-        this.themeColor = "BLUE";
+        this.themeColor = "SKYBLUE";
+        this.createdAt = now();
+        this.updatedAt = now();
     }
 
     public static Timetable create(Long userId, Long termId, String title) {

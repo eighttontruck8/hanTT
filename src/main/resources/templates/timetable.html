@@ -4,7 +4,7 @@
     <meta charset="UTF-8"/>
     <title>시간표</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 18px; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 18px; background:#f7f9fc;}
         .topbar { display:flex; align-items:center; gap:10px; margin-bottom: 12px; }
         .topbar input { padding:6px 8px; width: 280px; }
         .topbar button { padding:6px 10px; cursor:pointer; }
@@ -19,13 +19,24 @@
 
         .panel {
             border-radius: 8px;
-            background: #dfe9f7;
+            background: #f3f7ff;
             padding: 14px;
             overflow: auto;
         }
 
         .panel h2 { margin: 0 0 10px 0; font-size: 22px; }
 
+        .period-time {
+            font-size: 11px;
+            color: #8b94a7;
+            font-weight: normal;
+            margin-top: 2px;
+        }
+
+        .slot-label {
+            font-weight: normal; /*얇게 변경...*/
+            color: #444;
+        }
         .course-row, .picked-row {
             display:flex; align-items:center; justify-content:space-between;
             background: rgba(255,255,255,0.8);
@@ -108,13 +119,17 @@
 
             <tbody>
             <tr th:each="p : ${periods}">
-                <th class="pcol" th:text="${p}"></th>
+                <th class="pcol">
+                    <div th:text="${p}"></div>
+                    <div class="period-time"
+                         th:text="${periodTimeMap[p]}"></div>
+                </th>
 
                 <td th:each="d : ${days}">
                     <div class="cell"
                          th:with="
-                  keyA=${d + '-' + p + 'A'},
-                  keyB=${d + '-' + p + 'B'},
+                  keyA=${'0' + d + '-' + p + 'A'},
+                  keyB=${'0' + d + '-' + p + 'B'},
                   listA=${cellMap[keyA]},
                   listB=${cellMap[keyB]},
                   sizeA=${listA == null ? 0 : #lists.size(listA)},
@@ -122,12 +137,12 @@
                "
                          th:classappend="${(sizeA + sizeB) > 1} ? ' conflict' : ''">
 
-                        <div><b th:text="${p} + 'A'"></b></div>
+                        <div class="slot-label" th:text="${p} + 'A'"></div>
                         <div th:if="${listA != null}" th:each="x : ${listA}" th:text="${x}"></div>
 
                         <hr/>
 
-                        <div><b th:text="${p} + 'B'"></b></div>
+                        <div class="slot-label" th:text="${p} + 'B'"></div>
                         <div th:if="${listB != null}" th:each="x : ${listB}" th:text="${x}"></div>
                     </div>
                 </td>
@@ -141,7 +156,7 @@
         <h2>담은 과목</h2>
 
         <div th:if="${#lists.isEmpty(pickedCourseIds)}" class="small">
-            왼쪽 목록에서 듣고싶은 강의를 추가하세요!
+            목록에서 듣고싶은 강의를 추가하세요!
         </div>
 
         <div th:each="cid : ${pickedCourseIds}" class="picked-row">
