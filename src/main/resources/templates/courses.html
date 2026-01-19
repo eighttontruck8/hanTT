@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>강의 목록</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background: #f5f5f5; }
+    </style>
+</head>
+<body>
+<h2>강의 목록</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>과목코드</th>
+        <th>교과목명</th>
+        <th>분반</th>
+        <th>정원</th>
+        <th>학점</th>
+        <th>담당교수</th>
+        <th>시간</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="c : ${courses}">
+        <td th:text="${c.id}">1</td>
+        <td th:text="${c.courseCode}">IDA276</td>
+        <td th:text="${c.courseName}">(창의)제품조형실습</td>
+        <td th:text="${c.section}">1</td>
+        <td th:text="${c.capacity}">20</td>
+        <td th:text="${c.credits}">3</td>
+        <td th:text="${c.professor}">김성준</td>
+        <td th:text="${c.rawTimeText}">화08A~09B</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
