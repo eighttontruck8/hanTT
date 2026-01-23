@@ -58,6 +58,53 @@
         .cell { font-size: 12px; line-height: 1.25; min-height: 40px; }
         .conflict { background: #ffe3e3; }
         .small { font-size: 12px; color:#444; }
+
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 13px;
+            table-layout:fixed;
+        }
+        .excel-table th,
+        .excel-table td {
+            border: 1px solid #cfd6e3;
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: middle;
+
+            white-space: nowrap; /* 한 줄 유지 */
+            overflow:hidden; /* 넘치는 텍스트는 숨기기 */
+            /*text-overflow:ellipsis; !* ... 표시하기 *!*/
+        }
+        .excel-table th {
+            background: #f6f8fc;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            font-weight: 700;
+        }
+
+        .truncate {
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .excel-table tbody tr { cursor: pointer; }
+        .excel-table tbody tr:hover { background: #eef4ff; }
+
+        /* 이미 담긴 과목은 회색 처리 */
+        .excel-table tbody tr.picked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .excel-table tbody tr.picked:hover {
+            background: inherit;
+        }
+
+
+        .table-wrap { overflow: auto; }
     </style>
 </head>
 <body>
@@ -77,7 +124,7 @@
 
 <div class="layout">
 
-    <!-- 왼쪽 위: 강의 목록 -->
+    <!-- 강의 목록 -->
     <div class="panel">
         <h2>강의 목록</h2>
 
@@ -85,27 +132,57 @@
             termId: <span th:text="${termId}"></span>
         </div>
 
-        <div th:each="c : ${courseList}" class="course-row">
-            <div>
-                <div><b th:text="${c.courseName}"></b></div>
-                <div class="meta"
-                     th:text="${c.opening + ' / ' + c.courseCode + ' / ' + c.section + '분반 / ' + c.professor}">
-                </div>
-                <div class="meta" th:text="${c.rawTimeText}"></div>
-            </div>
+        <div class="table-wrap">
+            <table class="excel-table">
+                <colgroup>
+                    <col style="width:110px;">   <!-- 개설 -->
+                    <col style="width:60px;">   <!-- 코드 -->
+                    <col style="width:120px;">  <!-- 과목명 -->
+                    <col style="width:40px;">   <!-- 분반 -->
+                    <col style="width:50px;">  <!-- 교수 -->
+                    <col style="width:70px;">   <!-- 대상 -->
+                    <col style="width:35px;">   <!-- 학점 -->
+                    <col style="width:35px;">   <!-- 정원 -->
+                </colgroup>
 
-            <!-- 이미 담은 과목이면 버튼 비활성화 -->
-            <form th:action="@{|/timetable/${timetable.id}/courses/add|}" method="post">
-                <input type="hidden" name="courseId" th:value="${c.id}"/>
-                <button type="submit"
-                        th:disabled="${#lists.contains(pickedCourseIds, c.id)}"
-                        th:text="${#lists.contains(pickedCourseIds, c.id)} ? '담김' : '추가'">
-                </button>
-            </form>
+                <thead>
+                <tr>
+                    <th>개설</th>
+                    <th>코드</th>
+                    <th>과목명</th>
+                    <th>분반</th>
+                    <th>교수님</th>
+                    <th>대상</th>
+                    <th>학점</th>
+                    <th>정원</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="c : ${courseList}">
+
+                    <td th:text="${c.opening}"></td>
+                    <td th:text="${c.courseCode}" th:title="${c.courseCode}" ></td>
+                    <td class="truncate" th:text="${c.courseName}"> </td>
+                    <td th:text="${c.section}"></td>
+                    <td th:text="${c.professor}" th:title="${c.professor}"> </td>
+                    <td th:text="${c.target}" th:title="${c.target}"> </td>
+                    <td th:text="${c.credits}"></td>
+                    <td th:text="${c.capacity}"></td>
+
+                    <!-- 숨겨진 과목 추가 기능(더블클릭) -->
+                    <td style="display:none;">
+                        <form th:action="@{|/timetable/${timetable.id}/courses/add|}" method="post">
+                            <input type="hidden" name="courseId" th:value="${c.id}"/>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- 오른쪽: 시간표 -->
+<!-- 시간표 -->
     <div class="panel" style="grid-row: 1 / span 2;">
         <h2>시간표</h2>
 
@@ -151,7 +228,7 @@
         </table>
     </div>
 
-    <!-- 왼쪽 아래: 내가 담은 과목들 -->
+    <!-- 담은 과목 목록 -->
     <div class="panel">
         <h2>담은 과목</h2>
 
@@ -159,30 +236,60 @@
             목록에서 듣고싶은 강의를 추가하세요!
         </div>
 
-        <div th:each="cid : ${pickedCourseIds}" class="picked-row"
-             th:with="pc=${pickedCourseMap.get(cid)}">
+        <div th:if="${!#lists.isEmpty(pickedCourseIds)}" class="table-wrap">
+            <table class="excel-table">
+                <colgroup>
+                    <col style="width:110px;">   <!-- 개설 -->
+                    <col style="width:60px;">   <!-- 코드 -->
+                    <col style="width:120px;">  <!-- 과목명 -->
+                    <col style="width:40px;">   <!-- 분반 -->
+                    <col style="width:50px;">  <!-- 교수 -->
+                    <col style="width:70px;">   <!-- 대상 -->
+                    <col style="width:35px;">   <!-- 학점 -->
+                    <col style="width:35px;">   <!-- 정원 -->
+                </colgroup>
 
-            <div class="small" th:text="${pickedCourseMap.containsKey(cid)}"></div>
-            <span th:text="${cid}"></span>
+                <thead>
+                <tr>
+                    <th>개설</th>
+                    <th>코드</th>
+                    <th>과목명</th>
+                    <th>분반</th>
+                    <th>교수</th>
+                    <th>대상</th>
+                    <th>학점</th>
+                    <th>정원</th>
+                </tr>
+                </thead>
 
-            <div>
-                <span th:if="${pc != null}" th:text="${pc.courseName}"></span>
-                <span th:if="${pc == null}" th:text="${'(missing course: ' + cid + ')'}"></span>
+                <tbody>
+                <tr th:each="cid : ${pickedCourseIds}"
+                    th:with="pc=${pickedCourseMap.get(cid)}">
 
-                <div class="meta" th:if="${pc != null}"
-                     th:text="${pc.courseCode + ' / ' + pc.section + '분반'}"></div>
+                    <!-- null도 깨지지 않게 수정 -->
+                    <td th:text="${pc != null ? pc.opening : '-'}"></td>
+                    <td th:text="${pc != null ? pc.courseCode : '-'}"
+                        th:title="${pc != null ? pc.courseCode : ''}"></td>
+                    <td class="truncate" th:text="${pc != null ? pc.courseName : '(missing ' + cid + ')'}"></td>
+                    <td th:text="${pc != null ? pc.section : '-'}"></td>
+                    <td th:text="${pc != null ? pc.professor : '-'}"
+                        th:title="${pc != null ? pc.professor : ''}"></td>
+                    <td th:text="${pc != null ? pc.target : '-'}"
+                        th:title="${pc != null ? pc.target : ''}"></td>
+                    <td th:text="${pc != null ? pc.credits : '-'}"></td>
+                    <td th:text="${pc != null ? pc.capacity : '-'}"></td>
 
-                <div class="meta" th:if="${pc == null}" th:text="'(no meta)'"></div>
-            </div>
-
-            <form th:action="@{|/timetable/${timetable.id}/courses/remove|}" method="post">
-                <input type="hidden" name="courseId" th:value="${cid}"/>
-                <button type="submit">삭제</button>
-            </form>
+                    <!-- 숨겨진 과목 제거 기능(더블클릭) -->
+                    <td style="display:none;">
+                        <form th:action="@{|/timetable/${timetable.id}/courses/remove|}" method="post">
+                            <input type="hidden" name="courseId" th:value="${cid}"/>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
-
     </div>
-
 </div>
 </body>
 </html>
