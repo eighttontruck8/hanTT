@@ -159,7 +159,9 @@
                 </thead>
 
                 <tbody>
-                <tr th:each="c : ${courseList}">
+                <tr th:each="c : ${courseList}"
+                    class="course-row-js"
+                    th:attr="data-course-id=${c.id}">
 
                     <td th:text="${c.opening}"></td>
                     <td th:text="${c.courseCode}" th:title="${c.courseCode}" ></td>
@@ -170,12 +172,12 @@
                     <td th:text="${c.credits}"></td>
                     <td th:text="${c.capacity}"></td>
 
-                    <!-- 숨겨진 과목 추가 기능(더블클릭) -->
-                    <td style="display:none;">
-                        <form th:action="@{|/timetable/${timetable.id}/courses/add|}" method="post">
-                            <input type="hidden" name="courseId" th:value="${c.id}"/>
-                        </form>
-                    </td>
+<!--                    &lt;!&ndash; 숨겨진 과목 추가 기능(더블클릭) &ndash;&gt;-->
+<!--                    <td style="display:none;">-->
+<!--                        <form th:action="@{|/timetable/${timetable.id}/courses/add|}" method="post">-->
+<!--                            <input type="hidden" name="courseId" th:value="${c.id}"/>-->
+<!--                        </form>-->
+<!--                    </td>-->
                 </tr>
                 </tbody>
             </table>
@@ -264,7 +266,9 @@
 
                 <tbody>
                 <tr th:each="cid : ${pickedCourseIds}"
-                    th:with="pc=${pickedCourseMap.get(cid)}">
+                    th:with="pc=${pickedCourseMap.get(cid)}"
+                    class="picked-row-js"
+                    th:attr="data-course-id=${cid}">
 
                     <!-- null도 깨지지 않게 수정 -->
                     <td th:text="${pc != null ? pc.opening : '-'}"></td>
@@ -279,17 +283,84 @@
                     <td th:text="${pc != null ? pc.credits : '-'}"></td>
                     <td th:text="${pc != null ? pc.capacity : '-'}"></td>
 
-                    <!-- 숨겨진 과목 제거 기능(더블클릭) -->
-                    <td style="display:none;">
-                        <form th:action="@{|/timetable/${timetable.id}/courses/remove|}" method="post">
-                            <input type="hidden" name="courseId" th:value="${cid}"/>
-                        </form>
-                    </td>
+<!--                    &lt;!&ndash; 숨겨진 과목 제거 기능(더블클릭) &ndash;&gt;-->
+<!--                    <td style="display:none;">-->
+<!--                        <form th:action="@{|/timetable/${timetable.id}/courses/remove|}" method="post">-->
+<!--                            <input type="hidden" name="courseId" th:value="${cid}"/>-->
+<!--                        </form>-->
+<!--                    </td>-->
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const timetableId = /*[[${timetable.id}]]*/ 0;
+
+    console.log("[timetable] script loaded, timetableId =", timetableId);
+
+    // CSRF(스프링 시큐리티 켜져있으면 필요)
+    const csrfHeader = /*[[${_csrf != null ? _csrf.headerName : ''}]]*/ '';
+    const csrfToken  = /*[[${_csrf != null ? _csrf.token : ''}]]*/ '';
+
+    function post(url, bodyObj) {
+        const headers = { "Content-Type": "application/x-www-form-urlencoded" };
+        if (csrfHeader && csrfToken) headers[csrfHeader] = csrfToken;
+
+        const body = new URLSearchParams(bodyObj).toString();
+
+        return fetch(url, {
+            method: "POST",
+            headers,
+            body
+        });
+    }
+
+    // 강의 목록 더블클릭 -> 추가
+    document.querySelectorAll("tr.course-row-js").forEach(tr => {
+        tr.addEventListener("dblclick", async () => {
+            const courseId = tr.dataset.courseId;
+            console.log("[dblclick add]", { timetableId, courseId });
+
+            try {
+                const res = await post(`/timetable/${timetableId}/courses/add`, { courseId });
+                if (!res.ok) {
+                    const text = await res.text();
+                    alert("추가 실패: " + res.status);
+                    console.error("add failed", res.status, text);
+                    return;
+                }
+                location.reload();
+            } catch (e) {
+                console.error("add error", e);
+            }
+        });
+    });
+
+    // 담은 과목 더블클릭 -> 삭제
+    document.querySelectorAll("tr.picked-row-js").forEach(tr => {
+        tr.addEventListener("dblclick", async () => {
+            const courseId = tr.dataset.courseId;
+            console.log("[dblclick remove]", { timetableId, courseId });
+
+            try {
+                const res = await post(`/timetable/${timetableId}/courses/remove`, { courseId });
+                if (!res.ok) {
+                    const text = await res.text();
+                    alert("삭제 실패: " + res.status);
+                    console.error("remove failed", res.status, text);
+                    return;
+                }
+                location.reload();
+            } catch (e) {
+                console.error("remove error", e);
+            }
+        });
+    });
+    /*]]>*/
+</script>
+
 </body>
 </html>
