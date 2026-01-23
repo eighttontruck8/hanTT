@@ -89,7 +89,7 @@
             <div>
                 <div><b th:text="${c.courseName}"></b></div>
                 <div class="meta"
-                     th:text="${c.opening} + ' / ' + ${c.courseCode} + ' / ' + ${c.section} + '분반 / ' + ${c.professor}">
+                     th:text="${c.opening + ' / ' + c.courseCode + ' / ' + c.section + '분반 / ' + c.professor}">
                 </div>
                 <div class="meta" th:text="${c.rawTimeText}"></div>
             </div>
@@ -128,8 +128,8 @@
                 <td th:each="d : ${days}">
                     <div class="cell"
                          th:with="
-                  keyA=${'0' + d + '-' + p + 'A'},
-                  keyB=${'0' + d + '-' + p + 'B'},
+                  keyA=${d + '-' + p + 'A'},
+                  keyB=${d + '-' + p + 'B'},
                   listA=${cellMap[keyA]},
                   listB=${cellMap[keyB]},
                   sizeA=${listA == null ? 0 : #lists.size(listA)},
@@ -159,12 +159,20 @@
             목록에서 듣고싶은 강의를 추가하세요!
         </div>
 
-        <div th:each="cid : ${pickedCourseIds}" class="picked-row">
+        <div th:each="cid : ${pickedCourseIds}" class="picked-row"
+             th:with="pc=${pickedCourseMap.get(cid)}">
+
+            <div class="small" th:text="${pickedCourseMap.containsKey(cid)}"></div>
+            <span th:text="${cid}"></span>
+
             <div>
-                <div><b th:text="${pickedCourseMap[cid].courseName}"></b></div>
-                <div class="meta"
-                     th:text="${pickedCourseMap[cid].courseCode} + ' / ' + ${pickedCourseMap[cid].section} + '분반'">
-                </div>
+                <span th:if="${pc != null}" th:text="${pc.courseName}"></span>
+                <span th:if="${pc == null}" th:text="${'(missing course: ' + cid + ')'}"></span>
+
+                <div class="meta" th:if="${pc != null}"
+                     th:text="${pc.courseCode + ' / ' + pc.section + '분반'}"></div>
+
+                <div class="meta" th:if="${pc == null}" th:text="'(no meta)'"></div>
             </div>
 
             <form th:action="@{|/timetable/${timetable.id}/courses/remove|}" method="post">
@@ -172,6 +180,7 @@
                 <button type="submit">삭제</button>
             </form>
         </div>
+
     </div>
 
 </div>

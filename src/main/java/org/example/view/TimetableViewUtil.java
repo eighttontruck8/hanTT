@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class TimetableViewUtil {
+
     private TimetableViewUtil() {}
 
     public static List<Integer> buildPeriods(int maxPeriod) {

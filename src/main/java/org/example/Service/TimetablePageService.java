@@ -69,6 +69,8 @@ public class TimetablePageService {
                 .map(TimetableCourse::getCourseId)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
+        System.out.println("pickedCourseIds=" + pickedCourseIds);
+
         // 3) pickedCourseMap: courseId -> Course
         Map<Long, Course> pickedCourseMap = new HashMap<>();
         if (!pickedCourseIds.isEmpty()) {
@@ -76,6 +78,8 @@ public class TimetablePageService {
                 pickedCourseMap.put(c.getId(), c);
             }
         }
+        System.out.println("pickedCourseMap keys=" + pickedCourseMap.keySet());
+
 
         // 4) 오른쪽 시간표 칸 만들기
         Map<String, List<String>> cellMap = buildCellMap(pickedCourseIds, pickedCourseMap, maxPeriod);

@@ -40,7 +40,7 @@ public class TimetablePageController {
         return "redirect:/timetable?timetableId=" + id;
     }
 
-    // 저장 버튼 (지금은 그냥 redirect)
+    // 저장 버튼
     @PostMapping("/timetable/{id}/save")
     public String save(@PathVariable Long id) {
         return "redirect:/timetable?timetableId=" + id;

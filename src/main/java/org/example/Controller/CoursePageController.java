@@ -4,15 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.example.Repository.CourseRepository;
 import org.example.Service.CourseService;
 import org.example.Service.CourseTimeSlotService;
-import org.example.entity.Course;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
