@@ -106,6 +106,7 @@ public class TimetablePageService {
 
     @Transactional
     public void addCourse(Long timetableId, Long courseId) {
+
         // 1) timetable_courses 중복 방지
         boolean exists =
                 timetableCourseRepository.existsByTimetableIdAndCourseId(timetableId, courseId);

@@ -13,8 +13,4 @@ public enum DayKR {
     DayKR(int order){ this.order = order; }
 
     public static DayKR from(String s){ return DayKR.valueOf(s); }
-    public static DayKR fromOrder(int o){
-        for (DayKR d: values()) if (d.order == o) return d;
-        throw new IllegalArgumentException("bad day order: " + o);
-    }
 }

@@ -12,9 +12,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TimetableService {
     private final TimetableRepository timetableRepository;
-    private final TimetableCourseRepository timetableCourseRepository;
-    private final CourseRepository courseRepository;
-    private final CourseTimeSlotRepository courseTimeSlotRepository; // course_time_slots 읽기용
 
     // 새 시간표 생성 또는 기존 시간표 반환
     @Transactional
