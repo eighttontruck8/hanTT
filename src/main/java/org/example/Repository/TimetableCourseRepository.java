@@ -11,9 +11,5 @@ import java.util.Optional;
 public interface TimetableCourseRepository extends JpaRepository<TimetableCourse, Long> {
     List<TimetableCourse> findByTimetableId(Long timetableId);
     boolean existsByTimetableIdAndCourseId(Long timetableId, Long courseId);
-
-    Optional<TimetableCourse> findByTimetableIdAndCourseId(Long timetableId, Long courseId);
     void deleteByTimetableIdAndCourseId(Long timetableId, Long courseId);
-
-    List<Long> findCourseIdsByTimetableId(Long timetableId);
 }

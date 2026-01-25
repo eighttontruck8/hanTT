@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequiredArgsConstructor
+@RequiredArgsConstructor // HTML용
 public class CoursePageController {
     private final CourseRepository courseRepository;
     private final CourseTimeSlotService courseTimeSlotService;
     private final CourseService courseService;
 
+    // GET : COURSE 과목 조회
     @GetMapping("/courses")
     public String courses(@RequestParam(required = false) Long termId, Model model) {
 

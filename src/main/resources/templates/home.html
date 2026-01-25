@@ -1,0 +1,19 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Home</title>
+</head>
+<body>
+<h2>홈</h2>
+
+<p>
+    <b th:text="${member.nickname}">닉네임</b> 님 환영합니다!<br/>
+    이메일: <span th:text="${member.email}">email</span>
+</p>
+
+<form method="post" action="/logout">
+    <button type="submit">로그아웃</button>
+</form>
+</body>
+</html>
