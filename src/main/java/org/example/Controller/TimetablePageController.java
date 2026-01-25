@@ -48,8 +48,8 @@ public class TimetablePageController {
 
     // 강의 추가
     @PostMapping("/timetable/{id}/courses/add")
-    public String addCourse(@PathVariable Long id, @RequestParam Long courseId) {
-        timetablePageService.addCourse(id, courseId);
+    public String addCourse(@PathVariable Long id, @RequestParam Long courseId, String colorCode) {
+        timetablePageService.addCourse(id, courseId, colorCode);
         return "redirect:/timetable?timetableId=" + id;
     }
 

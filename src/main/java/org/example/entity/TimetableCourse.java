@@ -30,12 +30,16 @@ public class TimetableCourse {
     @Column(name = "course_id", nullable = false)
     private Long courseId;
 
-    public TimetableCourse(Long timetableId, Long courseId) {
+    @Column(name = "color", length = 7)
+    private String colorCode;
+
+    public TimetableCourse(Long timetableId, Long courseId, String colorCode) {
         this.timetableId = timetableId;
         this.courseId = courseId;
+        this.colorCode = colorCode;
     }
 
-    public static TimetableCourse create(Long timetableId, Long courseId) {
-        return new TimetableCourse(timetableId, courseId);
+    public static TimetableCourse create(Long timetableId, Long courseId, String color) {
+        return new TimetableCourse(timetableId, courseId, colorCode);
     }
 }

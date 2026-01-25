@@ -12,4 +12,5 @@ public interface TimetableCourseRepository extends JpaRepository<TimetableCourse
     List<TimetableCourse> findByTimetableId(Long timetableId);
     boolean existsByTimetableIdAndCourseId(Long timetableId, Long courseId);
     void deleteByTimetableIdAndCourseId(Long timetableId, Long courseId);
+    long countByTimetableId(Long timetableId);
 }

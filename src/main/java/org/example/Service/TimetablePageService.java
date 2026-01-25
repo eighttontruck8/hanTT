@@ -34,6 +34,11 @@ public class TimetablePageService {
             int maxPeriod
     ) {}
 
+    private static final List<String> PALETTE = List.of(
+            "#FFD6E7", "#D6F5FF", "#D6FFE6", "#FFF3D6", "#E7D6FF",
+            "#FFE6D6", "#D6FFD9", "#D6E0FF", "#FFF0B3", "#E0E0E0"
+    );
+
     // 1) /timetable 들어오면 timetableId 없을 때 자동 생성
     @Transactional
     public Timetable getOrCreate(Long timetableId) {
@@ -107,17 +112,21 @@ public class TimetablePageService {
     @Transactional
     public void addCourse(Long timetableId, Long courseId) {
 
-        // 1) timetable_courses 중복 방지
-        boolean exists =
-                timetableCourseRepository.existsByTimetableIdAndCourseId(timetableId, courseId);
-        if (exists) return;
+        // 1) 중복된 강의일 경우
+        if (timetableCourseRepository.existsByTimetableIdAndCourseId(timetableId, courseId)) {
+            throw new IllegalStateException("이미 담긴 과목입니다.");
+        }
 
-        // 2) timetable_courses 저장
+        // 2) 다음 색 결정 (담긴 과목 개수 기준)
+        long pickedCount = timetableCourseRepository.countByTimetableId(timetableId);
+        String color = PALETTE.get((int)(pickedCount % PALETTE.size()));
+
+        // 3) 저장
         timetableCourseRepository.save(
-                TimetableCourse.create(timetableId, courseId)
+                TimetableCourse.create(timetableId, courseId, color)
         );
 
-        // 3) 시간 슬롯 생성
+        // 4) 시간 슬롯 생성
         if (!courseTimeSlotRepository.existsByCourseId(courseId)) {
 
             Course course = courseRepository.findById(courseId)
