@@ -2,6 +2,8 @@ package org.example.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.example.DTO.CellItem;
 import org.example.Repository.*;
 import org.example.Time.TimeCell;
 import org.example.Time.TimeExpander;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.awt.SystemColor.text;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +34,7 @@ public class TimetablePageService {
             List<Course> courseList,
             Set<Long> pickedCourseIds,
             Map<Long, Course> pickedCourseMap,
-            Map<String, List<String>> cellMap,
+            Map<String, List<CellItem>> cellMap,
             int maxPeriod
     ) {}
 
@@ -86,7 +90,8 @@ public class TimetablePageService {
 
 
         // 4) 오른쪽 시간표 칸 만들기
-        Map<String, List<String>> cellMap = buildCellMap(pickedCourseIds, pickedCourseMap, maxPeriod);
+        Map<String, List<CellItem>> cellMap
+                = buildCellMap(timetableId, pickedCourseIds, pickedCourseMap, maxPeriod);
 
         return new TimetablePageVM(
                 tt,
@@ -97,7 +102,6 @@ public class TimetablePageService {
                 cellMap,
                 maxPeriod
         );
-
     }
 
     @Transactional
@@ -157,14 +161,16 @@ public class TimetablePageService {
                 .orElse(1L);
     }
 
-    private Map<String, List<String>> buildCellMap(Set<Long> pickedCourseIds,
-                                                   Map<Long, Course> pickedCourseMap,
-                                                   int maxPeriod) {
+    private Map<String, List<CellItem>> buildCellMap(
+            Long timetableId,
+            Set<Long> pickedCourseIds,
+            Map<Long, Course> pickedCourseMap,
+            int maxPeriod) {
         if (pickedCourseIds == null || pickedCourseIds.isEmpty()) return new HashMap<>();
 
         List<CourseTimeSlot> slots = courseTimeSlotRepository.findByCourseIdIn(new ArrayList<>(pickedCourseIds));
 
-        Map<String, List<String>> cellMap = new HashMap<>();
+        Map<String, List<CellItem>> cellMap = new HashMap<>();
 
         for (CourseTimeSlot s : slots) {
             Course c = pickedCourseMap.get(s.getCourseId());
@@ -176,10 +182,17 @@ public class TimetablePageService {
                     + " (" + c.getSection() + "분반) "
                     + (c.getProfessor() == null ? "" : c.getProfessor());
 
+            // 색상 가져오기
+            String color = timetableCourseRepository
+                    .findByTimetableIdAndCourseId(timetableId, c.getId())
+                    .map(TimetableCourse::getColorCode)
+                    .orElse("#E0E0E0");
+
+            CellItem item = new CellItem(label, color);
             for (TimeCell cell : cells) {
                 // !! key는 "월-3A" 같은 형식으로 통일
                 String key = cell.dayKr() + "-" + cell.period() + (cell.half() == 0 ? "A" : "B");
-                cellMap.computeIfAbsent(key, k -> new ArrayList<>()).add(label);
+                cellMap.computeIfAbsent(key, k -> new ArrayList<>()).add(item);
             }
         }
         return cellMap;

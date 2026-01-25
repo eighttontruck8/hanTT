@@ -103,7 +103,6 @@
             background: inherit;
         }
 
-
         .table-wrap { overflow: auto; }
     </style>
 </head>
@@ -206,38 +205,25 @@
                       listA=${cellMap.get(keyA)},
                       listB=${cellMap.get(keyB)}
                        "th:classappend="${listA != null and listB != null} ? ' conflict' : ''">
-<!--                         th:classappend="${(!#lists.isEmpty(listA) and !#lists.isEmpty(listB))} ? ' conflict' : ''">-->
-
-                        <!--  디버그 -->
-<!--                        <div class="small" th:text="|keyA=${keyA}|"></div>-->
-<!--&lt;!&ndash;                        <div class="small" th:text="|listA=${listA}|"></div>&ndash;&gt;-->
-<!--                        <div class="small" th:text="|cellMap_keys=${cellMap.keySet()}|"></div>-->
-<!--&lt;!&ndash;                        <div class="small" th:text="|wantKeyA=${keyA}, wantKeyB=${keyB}|"></div>&ndash;&gt;-->
-
-<!--                        <div class="small" th:text="|cellMap_size=${#maps.size(cellMap)}|"></div>-->
-<!--                        <div class="small" th:text="|containsKeyA=${cellMap.containsKey(keyA)}|"></div>-->
-<!--                        <div class="small" th:text="|containsKeyB=${cellMap.containsKey(keyB)}|"></div>-->
-
-<!--                        <div class="small" th:text="|listA_isNull=${listA == null}|"></div>-->
-<!--                        <div class="small" th:text="|listA_class=${listA == null ? 'null' : listA.getClass().getName()}|"></div>-->
-<!--                        <div class="small" th:text="|listA_size=${listA == null ? -1 : #lists.size(listA)}|"></div>-->
-
-<!--                        <div class="small" th:if="${#lists.isEmpty(listA)}" th:text="'firstA=-'"></div>-->
-<!--                        <div class="small" th:if="${!#lists.isEmpty(listA)}" th:text="|firstA=${listA.get(0)}|"></div>-->
 
                         <!-- A슬롯 -->
                         <div class="slot-label" th:text="${p} + 'A'"></div>
                         <div th:if="${listA != null}">
                             <!-- listA가 List<String>이면 -->
-                            <div th:each="x : ${listA}" th:text="${x}"></div>
-
+                            <div th:each="it : ${listA}"
+                                 th:text="${it.text}"
+                                 th:style="|background:${it.color}; padding:4px; border-radius:6px; margin:2px 0;|">
+                            </div>
                         </div>
 
                         <hr/>
                         <!-- B슬롯 -->
                         <div class="slot-label" th:text="${p} + 'B'"></div>
                         <div th:if="${listB != null}">
-                            <div th:each="x : ${listB}" th:text="${x}"></div>
+                            <div th:each="it : ${listB}"
+                                 th:text="${it.text}"
+                                 th:style="|background:${it.color}; padding:4px; border-radius:6px; margin:2px 0;|">
+                            </div>
                         </div>
                     </div>
                 </td>

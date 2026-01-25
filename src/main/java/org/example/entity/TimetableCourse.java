@@ -40,6 +40,6 @@ public class TimetableCourse {
     }
 
     public static TimetableCourse create(Long timetableId, Long courseId, String color) {
-        return new TimetableCourse(timetableId, courseId, colorCode);
+        return new TimetableCourse(timetableId, courseId, color);
     }
 }
