@@ -68,7 +68,8 @@ public class TimetablePageController {
     // 시간 표시
     private java.util.Map<Integer, String> buildPeriodTimeMap(int maxPeriod) {
         java.util.Map<Integer, String> map = new java.util.LinkedHashMap<>();
-        // 예시: 1교시 09:00 시작, 교시당 60분이라고 가정
+
+        // 1교시 09:00 시작, 교시당 60분
         int startHour = 9;
         int startMin = 0;
 

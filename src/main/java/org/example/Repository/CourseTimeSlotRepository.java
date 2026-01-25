@@ -9,4 +9,6 @@ public interface CourseTimeSlotRepository extends JpaRepository<CourseTimeSlot, 
     List<CourseTimeSlot> findByCourseIdIn(List<Long> courseIds);
 
     void deleteByCourseIdIn(List<Long> courseIds);
+
+    boolean existsByCourseId(Long courseId);
 }

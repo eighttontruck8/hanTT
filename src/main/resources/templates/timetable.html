@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8"/>
     <title>시간표</title>
@@ -49,11 +49,11 @@
         .course-row .meta, .picked-row .meta { font-size: 13px; color:#333; }
         .course-row button, .picked-row button { padding: 6px 10px; cursor:pointer; }
 
-        /* timetable grid */
-        table { width:100%; border-collapse: collapse; background:white; }
-        th, td { border: 1px solid #cfd6e3; padding: 6px; vertical-align: top; }
-        th { background: #f6f8fc; position: sticky; top: 0; z-index: 2; }
-        .pcol { position: sticky; left:0; z-index: 1; background:#f6f8fc; }
+        /* timetable grid (시간표 전용) */
+        .timetable-grid { width:100%; border-collapse: collapse; background:white; }
+        .timetable-grid th, .timetable-grid td { border:1px solid #cfd6e3; padding:6px; vertical-align: top; }
+        .timetable-grid th { background:#f6f8fc; position: sticky; top:0; z-index:2; }
+        .timetable-grid .pcol { position: sticky; left:0; z-index:3; background:#f6f8fc; }
 
         .cell { font-size: 12px; line-height: 1.25; min-height: 40px; }
         .conflict { background: #ffe3e3; }
@@ -74,8 +74,8 @@
             vertical-align: middle;
 
             white-space: nowrap; /* 한 줄 유지 */
-            overflow:hidden; /* 넘치는 텍스트는 숨기기 */
-            /*text-overflow:ellipsis; !* ... 표시하기 *!*/
+            overflow:hidden; /* 넘치는 텍스트 숨기기 */
+            /*text-overflow:ellipsis; !* ... 표시 *!*/
         }
         .excel-table th {
             background: #f6f8fc;
@@ -172,12 +172,6 @@
                     <td th:text="${c.credits}"></td>
                     <td th:text="${c.capacity}"></td>
 
-<!--                    &lt;!&ndash; 숨겨진 과목 추가 기능(더블클릭) &ndash;&gt;-->
-<!--                    <td style="display:none;">-->
-<!--                        <form th:action="@{|/timetable/${timetable.id}/courses/add|}" method="post">-->
-<!--                            <input type="hidden" name="courseId" th:value="${c.id}"/>-->
-<!--                        </form>-->
-<!--                    </td>-->
                 </tr>
                 </tbody>
             </table>
@@ -188,7 +182,7 @@
     <div class="panel" style="grid-row: 1 / span 2;">
         <h2>시간표</h2>
 
-        <table>
+        <table class="timetable-grid">
             <thead>
             <tr>
                 <th class="pcol">교시</th>
@@ -207,28 +201,51 @@
                 <td th:each="d : ${days}">
                     <div class="cell"
                          th:with="
-                  keyA=${d + '-' + p + 'A'},
-                  keyB=${d + '-' + p + 'B'},
-                  listA=${cellMap[keyA]},
-                  listB=${cellMap[keyB]},
-                  sizeA=${listA == null ? 0 : #lists.size(listA)},
-                  sizeB=${listB == null ? 0 : #lists.size(listB)}
-               "
-                         th:classappend="${(sizeA + sizeB) > 1} ? ' conflict' : ''">
+                      keyA=${d + '-' + p + 'A'},
+                      keyB=${d + '-' + p + 'B'},
+                      listA=${cellMap.get(keyA)},
+                      listB=${cellMap.get(keyB)}
+                       "th:classappend="${listA != null and listB != null} ? ' conflict' : ''">
+<!--                         th:classappend="${(!#lists.isEmpty(listA) and !#lists.isEmpty(listB))} ? ' conflict' : ''">-->
 
+                        <!--  디버그 -->
+<!--                        <div class="small" th:text="|keyA=${keyA}|"></div>-->
+<!--&lt;!&ndash;                        <div class="small" th:text="|listA=${listA}|"></div>&ndash;&gt;-->
+<!--                        <div class="small" th:text="|cellMap_keys=${cellMap.keySet()}|"></div>-->
+<!--&lt;!&ndash;                        <div class="small" th:text="|wantKeyA=${keyA}, wantKeyB=${keyB}|"></div>&ndash;&gt;-->
+
+<!--                        <div class="small" th:text="|cellMap_size=${#maps.size(cellMap)}|"></div>-->
+<!--                        <div class="small" th:text="|containsKeyA=${cellMap.containsKey(keyA)}|"></div>-->
+<!--                        <div class="small" th:text="|containsKeyB=${cellMap.containsKey(keyB)}|"></div>-->
+
+<!--                        <div class="small" th:text="|listA_isNull=${listA == null}|"></div>-->
+<!--                        <div class="small" th:text="|listA_class=${listA == null ? 'null' : listA.getClass().getName()}|"></div>-->
+<!--                        <div class="small" th:text="|listA_size=${listA == null ? -1 : #lists.size(listA)}|"></div>-->
+
+<!--                        <div class="small" th:if="${#lists.isEmpty(listA)}" th:text="'firstA=-'"></div>-->
+<!--                        <div class="small" th:if="${!#lists.isEmpty(listA)}" th:text="|firstA=${listA.get(0)}|"></div>-->
+
+                        <!-- A슬롯 -->
                         <div class="slot-label" th:text="${p} + 'A'"></div>
-                        <div th:if="${listA != null}" th:each="x : ${listA}" th:text="${x}"></div>
+                        <div th:if="${listA != null}">
+                            <!-- listA가 List<String>이면 -->
+                            <div th:each="x : ${listA}" th:text="${x}"></div>
+
+                        </div>
 
                         <hr/>
-
+                        <!-- B슬롯 -->
                         <div class="slot-label" th:text="${p} + 'B'"></div>
-                        <div th:if="${listB != null}" th:each="x : ${listB}" th:text="${x}"></div>
+                        <div th:if="${listB != null}">
+                            <div th:each="x : ${listB}" th:text="${x}"></div>
+                        </div>
                     </div>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
+
 
     <!-- 담은 과목 목록 -->
     <div class="panel">

@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.Repository.*;
 import org.example.Time.TimeCell;
 import org.example.Time.TimeExpander;
+import org.example.Time.TimeParser;
+import org.example.Time.TimeSlot;
 import org.example.entity.*;
-
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -93,6 +92,7 @@ public class TimetablePageService {
                 cellMap,
                 maxPeriod
         );
+
     }
 
     @Transactional
@@ -106,11 +106,31 @@ public class TimetablePageService {
 
     @Transactional
     public void addCourse(Long timetableId, Long courseId) {
-        // 중복 방지
-        boolean exists = timetableCourseRepository.existsByTimetableIdAndCourseId(timetableId, courseId);
+        // 1) timetable_courses 중복 방지
+        boolean exists =
+                timetableCourseRepository.existsByTimetableIdAndCourseId(timetableId, courseId);
         if (exists) return;
 
-        timetableCourseRepository.save(TimetableCourse.create(timetableId, courseId));
+        // 2) timetable_courses 저장
+        timetableCourseRepository.save(
+                TimetableCourse.create(timetableId, courseId)
+        );
+
+        // 3) 시간 슬롯 생성
+        if (!courseTimeSlotRepository.existsByCourseId(courseId)) {
+
+            Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("course 없음 id=" + courseId));
+
+            // rawTimeText → TimeSlot 파싱
+            List<TimeSlot> slots = TimeParser.parse(course.getRawTimeText());
+
+            for (TimeSlot ts : slots) {
+                courseTimeSlotRepository.save(
+                        CourseTimeSlot.from(courseId, ts)
+                );
+            }
+        }
     }
 
     @Transactional
@@ -118,13 +138,10 @@ public class TimetablePageService {
         timetableCourseRepository.deleteByTimetableIdAndCourseId(timetableId, courseId);
     }
 
-    // ------------------------
-    // private helpers
-    // ------------------------
+    // -----------------------------------------------------------------
 
     private Long resolveCurrentTermId() {
-        // “현재학기”를 네 DB에서 어떻게 정의할지 애매하면:
-        // 1) terms 테이블에서 id가 가장 큰 걸 현재로 보자(임시)
+        // 1) terms 테이블에서 id가 가장 큰 걸 현재로 간주.
         return termRepository.findTopByOrderByIdDesc()
                 .map(Term::getId)
                 .orElse(1L);
@@ -135,7 +152,6 @@ public class TimetablePageService {
                                                    int maxPeriod) {
         if (pickedCourseIds == null || pickedCourseIds.isEmpty()) return new HashMap<>();
 
-        // ✅ 여기서 IN 조회 메서드가 있으면 성능이 좋아짐
         List<CourseTimeSlot> slots = courseTimeSlotRepository.findByCourseIdIn(new ArrayList<>(pickedCourseIds));
 
         Map<String, List<String>> cellMap = new HashMap<>();
@@ -147,16 +163,15 @@ public class TimetablePageService {
             List<TimeCell> cells = TimeExpander.expandFromDbSlot(s, maxPeriod);
 
             String label = c.getCourseName()
-                    + " (" + c.getCourseCode() + "-" + c.getSection() + ")"
-                    + (c.getProfessor() == null ? "" : " / " + c.getProfessor());
+                    + " (" + c.getSection() + "분반) "
+                    + (c.getProfessor() == null ? "" : c.getProfessor());
 
             for (TimeCell cell : cells) {
-                // ✅ key는 "월-3A" 같은 형식으로 통일
+                // !! key는 "월-3A" 같은 형식으로 통일
                 String key = cell.dayKr() + "-" + cell.period() + (cell.half() == 0 ? "A" : "B");
                 cellMap.computeIfAbsent(key, k -> new ArrayList<>()).add(label);
             }
         }
-
         return cellMap;
     }
 }
