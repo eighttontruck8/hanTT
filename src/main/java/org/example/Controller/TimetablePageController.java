@@ -1,35 +1,36 @@
 package org.example.Controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.Service.TimetablePageService;
 import org.example.Service.TimetablePageService.TimetablePageVM;
+import org.example.Service.TimetablePageService;
+import org.example.Service.TimetableService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// 단일 시간표 화면만!!
 @Controller
 @RequiredArgsConstructor
 public class TimetablePageController {
     private final TimetablePageService timetablePageService;
 
     @GetMapping("/timetable")
-    public String timetable(@RequestParam(required = false) Long timetableId, Model model) {
-        var t = timetablePageService.getOrCreate(timetableId);
+    public String timetable(@RequestParam Long timetableId, Model model) {
+        TimetablePageVM vm = timetablePageService.buildPage(timetableId);
+        model.addAttribute("vm", vm);
+        model.addAttribute("timetable", vm.getTimetable()); // ⭐ 추가
 
-        TimetablePageVM vm = timetablePageService.buildPage(t.getId());
-
-        model.addAttribute("timetable", vm.timetable());
-        model.addAttribute("termId", vm.termId());
-        model.addAttribute("courseList", vm.courseList());
-        model.addAttribute("pickedCourseIds", vm.pickedCourseIds());
-        model.addAttribute("pickedCourseMap", vm.pickedCourseMap());
-        model.addAttribute("cellMap", vm.cellMap());
-        model.addAttribute("days", List.of("월","화","수","목","금"));
-        model.addAttribute("periods", buildPeriods(vm.maxPeriod()));
-        model.addAttribute("periodTimeMap", buildPeriodTimeMap(vm.maxPeriod()));
-
+//        model.addAttribute("timetable", vm.timetable());
+//        model.addAttribute("termId", vm.termId());
+//        model.addAttribute("courseList", vm.courseList());
+//        model.addAttribute("pickedCourseIds", vm.pickedCourseIds());
+//        model.addAttribute("pickedCourseMap", vm.pickedCourseMap());
+//        model.addAttribute("cellMap", vm.cellMap());
+//        model.addAttribute("days", List.of("월","화","수","목","금"));
+//        model.addAttribute("periods", buildPeriods(vm.maxPeriod()));
+//        model.addAttribute("periodTimeMap", buildPeriodTimeMap(vm.maxPeriod()));
         return "timetable";
     }
 
@@ -87,5 +88,4 @@ public class TimetablePageController {
         int m = minutes % 60;
         return String.format("%02d:%02d", h, m);
     }
-
 }

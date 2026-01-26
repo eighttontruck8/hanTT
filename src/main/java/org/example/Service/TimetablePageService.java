@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+// 시간표 화면 데이터 조립!!
 @Service
 @RequiredArgsConstructor
 public class TimetablePageService {
@@ -33,29 +34,16 @@ public class TimetablePageService {
             Map<Long, Course> pickedCourseMap,
             Map<String, List<CellItem>> cellMap,
             int maxPeriod
-    ) {}
+    ) {
+        public Object getTimetable() {
+            return timetable;
+        }
+    }
 
     private static final List<String> PALETTE = List.of(
             "#FFD6E7", "#D6F5FF", "#D6FFE6", "#FFF3D6", "#E7D6FF",
             "#FFE6D6", "#D6FFD9", "#D6E0FF", "#FFF0B3", "#E0E0E0"
     );
-
-    // 1) /timetable 들어오면 timetableId 없을 때 자동 생성
-    @Transactional
-    public Timetable getOrCreate(Long timetableId) {
-        if (timetableId != null) {
-            return timetableRepository.findById(timetableId)
-                    .orElseThrow(() -> new IllegalArgumentException("시간표 없음: " + timetableId));
-        }
-
-        Long userId = 1L; // 임시
-        Long currentTermId = resolveCurrentTermId();
-
-        return timetableRepository.findByUserIdAndTermId(userId, currentTermId)
-                .orElseGet(() -> timetableRepository.save(
-                        Timetable.create(userId, currentTermId, "새 시간표")
-                ));
-    }
 
     @Transactional
     public TimetablePageVM buildPage(Long timetableId) {

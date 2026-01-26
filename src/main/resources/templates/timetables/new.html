@@ -1,0 +1,14 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>시간표 생성</title></head>
+<body>
+<h1>시간표 생성</h1>
+
+<p th:if="${message}" th:text="${message}"></p>
+
+<form th:action="@{/timetables}" method="post">
+    <label>제목: <input name="title" /></label>
+    <button type="submit">생성</button>
+</form>
+</body>
+</html>
