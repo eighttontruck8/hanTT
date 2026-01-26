@@ -2,6 +2,8 @@ package org.example.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -28,12 +30,11 @@ public class Timetable {
     @Column(name = "visibility")
     private String visibility; // PUBLIC/PRIVATE
 
-    @Column(name = "theme_color")
-    private String themeColor;
-
-    @Column(name = "created_at")
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -44,7 +45,6 @@ public class Timetable {
         this.termId = termId;
         this.title = (title == null || title.isBlank()) ? "새 시간표" : title;
         this.visibility = "PUBLIC";
-        this.themeColor = "SKYBLUE";
         this.createdAt = now();
         this.updatedAt = now();
     }

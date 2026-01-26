@@ -2,7 +2,6 @@ package org.example.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.Cell;
 import org.example.DTO.CellItem;
 import org.example.Repository.*;
 import org.example.Time.TimeCell;
@@ -14,8 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.awt.SystemColor.text;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +63,8 @@ public class TimetablePageService {
                 .orElseThrow(() -> new NoSuchElementException("시간표 없음 id=" + timetableId));
 
         Long termId = tt.getTermId();
-        int maxPeriod = 15;
+        int maxPeriod = 9;
+
 
         // 1) 왼쪽 강의 목록: 해당 termId의 모든 course
         List<Course> courseList = courseRepository.findByTermId(termId);
@@ -77,6 +75,13 @@ public class TimetablePageService {
                 .map(TimetableCourse::getCourseId)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
+        Map<Long, String> colorByCourseId = links.stream()
+                .collect(Collectors.toMap(
+                        TimetableCourse::getCourseId,
+                        tc -> tc.getColorCode() == null ? "#E0E0E0" : tc.getColorCode(),
+                        (a, b) -> a,
+                        LinkedHashMap::new
+                ));
         System.out.println("pickedCourseIds=" + pickedCourseIds);
 
         // 3) pickedCourseMap: courseId -> Course
@@ -91,7 +96,7 @@ public class TimetablePageService {
 
         // 4) 오른쪽 시간표 칸 만들기
         Map<String, List<CellItem>> cellMap
-                = buildCellMap(timetableId, pickedCourseIds, pickedCourseMap, maxPeriod);
+                = buildCellMap(pickedCourseIds, pickedCourseMap, colorByCourseId, maxPeriod);
 
         return new TimetablePageVM(
                 tt,
@@ -102,6 +107,7 @@ public class TimetablePageService {
                 cellMap,
                 maxPeriod
         );
+
     }
 
     @Transactional
@@ -155,17 +161,18 @@ public class TimetablePageService {
     // -----------------------------------------------------------------
 
     private Long resolveCurrentTermId() {
-        // 1) terms 테이블에서 id가 가장 큰 걸 현재로 간주.
+        // terms 테이블에서 id가 가장 큰 걸 현재로 간주.
         return termRepository.findTopByOrderByIdDesc()
                 .map(Term::getId)
                 .orElse(1L);
     }
 
     private Map<String, List<CellItem>> buildCellMap(
-            Long timetableId,
             Set<Long> pickedCourseIds,
             Map<Long, Course> pickedCourseMap,
-            int maxPeriod) {
+            Map<Long, String> colorByCourseId,
+            int maxPeriod
+    ) {
         if (pickedCourseIds == null || pickedCourseIds.isEmpty()) return new HashMap<>();
 
         List<CourseTimeSlot> slots = courseTimeSlotRepository.findByCourseIdIn(new ArrayList<>(pickedCourseIds));
@@ -183,15 +190,37 @@ public class TimetablePageService {
                     + (c.getProfessor() == null ? "" : c.getProfessor());
 
             // 색상 가져오기
-            String color = timetableCourseRepository
-                    .findByTimetableIdAndCourseId(timetableId, c.getId())
-                    .map(TimetableCourse::getColorCode)
-                    .orElse("#E0E0E0");
+            String color = colorByCourseId.getOrDefault(c.getId(), "#E0E0E0");
 
-            CellItem item = new CellItem(label, color);
+            // 교시 순서 보장
+            cells.sort(Comparator.comparingInt(TimeCell::period));
+
             for (TimeCell cell : cells) {
-                // !! key는 "월-3A" 같은 형식으로 통일
+                // key는 "월-3A" 같은 형식으로 통일
                 String key = cell.dayKr() + "-" + cell.period() + (cell.half() == 0 ? "A" : "B");
+                boolean cont = false;
+
+                // ✅ (1) 같은 교시 A가 있으면 B는 연속으로 처리
+                if (cell.half() == 1) { // B
+                    String samePeriodAKey = cell.dayKr() + "-" + cell.period() + "A";
+                    List<CellItem> aItems = cellMap.get(samePeriodAKey);
+                    if (aItems != null) {
+                        cont = aItems.stream().anyMatch(it -> it.courseId().equals(c.getId()));
+                    }
+                }
+                // ✅ (2) 이전 교시(같은 half)가 있으면 연속 처리
+                if (!cont && cell.period() > 1) {
+                    // 바로 윗 교시 key
+                    String prevKey = cell.dayKr() + "-" + (cell.period() - 1) + (cell.half()==0 ? "A":"B");
+                    // prevKey에 같은 text가 이미 있으면 continuation 처리
+                    List<CellItem> prevItems = cellMap.get(prevKey);
+
+                    if (prevItems != null) {
+                        cont = prevItems.stream().anyMatch(it -> it.courseId().equals(c.getId()));
+                    }
+                }
+
+                CellItem item = new CellItem(c.getId(), label, color, cont);
                 cellMap.computeIfAbsent(key, k -> new ArrayList<>()).add(item);
             }
         }

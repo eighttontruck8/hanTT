@@ -11,7 +11,8 @@
 
         .layout {
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
+            /*grid-template-columns: 1.5fr 1.8fr;*/
+            grid-template-columns: max-content minmax(0, 1fr);
             grid-template-rows: 1fr 0.55fr;
             gap: 18px;
             height: calc(100vh - 90px);
@@ -21,11 +22,29 @@
             border-radius: 8px;
             background: #f3f7ff;
             padding: 14px;
-            overflow: auto;
+            min-width: 0;      /* grid에서 overflow/축소 가능하게 */
+            overflow: hidden;
         }
 
         .panel h2 { margin: 0 0 10px 0; font-size: 22px; }
+        .course-pill{
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin: 4px 0;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
 
+        .course-pill.cont{
+            /* 위 칸이랑 붙어 보이게 */
+            margin-top: -6px;          /* 위 pill과 겹치게 */
+            border-top: 0;             /* 위 경계선 제거 */
+            border-top-left-radius: 0; /* 위 모서리 각지게 */
+            border-top-right-radius: 0;
+        }
+
+        .course-pill.cont span{
+            visibility: hidden;        /* 글자는 숨기되 높이는 유지 */
+        }
         .period-time {
             font-size: 11px;
             color: #8b94a7;
@@ -37,6 +56,7 @@
             font-weight: normal; /*얇게 변경...*/
             color: #444;
         }
+
         .course-row, .picked-row {
             display:flex; align-items:center; justify-content:space-between;
             background: rgba(255,255,255,0.8);
@@ -50,17 +70,33 @@
         .course-row button, .picked-row button { padding: 6px 10px; cursor:pointer; }
 
         /* timetable grid (시간표 전용) */
-        .timetable-grid { width:100%; border-collapse: collapse; background:white; }
-        .timetable-grid th, .timetable-grid td { border:1px solid #cfd6e3; padding:6px; vertical-align: top; }
+        .timetable-grid {
+            width : max-content;
+            /*width:400px;*/
+            table-layout: fixed;
+            border-collapse: collapse;
+            background:white;
+        }
+        .timetable-grid th, .timetable-grid td { width: 90px; border:1px solid #cfd6e3; padding:6px; vertical-align: top; }
         .timetable-grid th { background:#f6f8fc; position: sticky; top:0; z-index:2; }
         .timetable-grid .pcol { position: sticky; left:0; z-index:3; background:#f6f8fc; }
 
         .cell { font-size: 12px; line-height: 1.25; min-height: 40px; }
         .conflict { background: #ffe3e3; }
         .small { font-size: 12px; color:#444; }
+        .course-chip{
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin: 4px 0;
+        }
 
+        .course-chip.cont{
+            /* 글자 숨겨서 높이만 유지 */
+            color: transparent;
+        }
         .excel-table {
             width: 100%;
+            min-width: 100%;
             border-collapse: collapse;
             background: white;
             font-size: 13px;
@@ -103,7 +139,19 @@
             background: inherit;
         }
 
-        .table-wrap { overflow: auto; }
+        .course-list-panel .table-wrap{
+            height: 100%;
+            max-height: 100%;
+            overflow: auto;       /* 스크롤 */
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            overflow-y: auto;
+
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
     </style>
 </head>
 <body>
@@ -124,7 +172,7 @@
 <div class="layout">
 
     <!-- 강의 목록 -->
-    <div class="panel">
+    <div class="panel course-list-panel">
         <h2>강의 목록</h2>
 
         <div class="small" style="margin-bottom:10px;">
@@ -134,7 +182,17 @@
         <div class="table-wrap">
             <table class="excel-table">
                 <colgroup>
+<!--                    <col style="width:80px;">   &lt;!&ndash; 개설 &ndash;&gt;-->
+<!--                    <col style="width:50px;">   &lt;!&ndash; 이수구분 &ndash;&gt;-->
+<!--                    <col style="width:55px;">   &lt;!&ndash; 코드 &ndash;&gt;-->
+<!--                    <col style="width:90px;">  &lt;!&ndash; 과목명 &ndash;&gt;-->
+<!--                    <col style="width:25px;">   &lt;!&ndash; 분반 &ndash;&gt;-->
+<!--                    <col style="width:40px;">  &lt;!&ndash; 교수 &ndash;&gt;-->
+<!--                    <col style="width:70px;">   &lt;!&ndash; 대상 &ndash;&gt;-->
+<!--                    <col style="width:35px;">   &lt;!&ndash; 학점 &ndash;&gt;-->
+<!--                    -->
                     <col style="width:110px;">   <!-- 개설 -->
+                    <col style="width:60px;">   <!-- 이수구분 -->
                     <col style="width:60px;">   <!-- 코드 -->
                     <col style="width:120px;">  <!-- 과목명 -->
                     <col style="width:40px;">   <!-- 분반 -->
@@ -147,13 +205,14 @@
                 <thead>
                 <tr>
                     <th>개설</th>
+                    <th>이수구분</th>
                     <th>코드</th>
                     <th>과목명</th>
                     <th>분반</th>
-                    <th>교수님</th>
+                    <th>교수</th>
                     <th>대상</th>
                     <th>학점</th>
-                    <th>정원</th>
+
                 </tr>
                 </thead>
 
@@ -163,13 +222,13 @@
                     th:attr="data-course-id=${c.id}">
 
                     <td th:text="${c.opening}"></td>
+                    <td th:text="${c.category}"></td>
                     <td th:text="${c.courseCode}" th:title="${c.courseCode}" ></td>
                     <td class="truncate" th:text="${c.courseName}"> </td>
                     <td th:text="${c.section}"></td>
                     <td th:text="${c.professor}" th:title="${c.professor}"> </td>
                     <td th:text="${c.target}" th:title="${c.target}"> </td>
                     <td th:text="${c.credits}"></td>
-                    <td th:text="${c.capacity}"></td>
 
                 </tr>
                 </tbody>
@@ -178,7 +237,7 @@
     </div>
 
 <!-- 시간표 -->
-    <div class="panel" style="grid-row: 1 / span 2;">
+    <div class="panel timetable-panel" style="grid-row: 1 / span 2;">
         <h2>시간표</h2>
 
         <table class="timetable-grid">
@@ -207,22 +266,32 @@
                        "th:classappend="${listA != null and listB != null} ? ' conflict' : ''">
 
                         <!-- A슬롯 -->
-                        <div class="slot-label" th:text="${p} + 'A'"></div>
-                        <div th:if="${listA != null}">
-                            <!-- listA가 List<String>이면 -->
-                            <div th:each="it : ${listA}"
-                                 th:text="${it.text}"
-                                 th:style="|background:${it.color}; padding:4px; border-radius:6px; margin:2px 0;|">
+                        <div class="slot-label"
+                            th:if="${listA == null or #lists.isEmpty(listA)}"
+                            th:text="${p} + 'A'"></div>
+
+                        <div th:if="${listA != null and !#lists.isEmpty(listA)}">
+                            <div th:each="it : ${listA}">
+                                <div class="course-pill"
+                                     th:style="|background:${it.color};|"
+                                     th:classappend="${it.continuation} ? ' cont' : ''">
+                                    <span th:text="${it.text}"></span>
+                                </div>
                             </div>
                         </div>
 
                         <hr/>
                         <!-- B슬롯 -->
-                        <div class="slot-label" th:text="${p} + 'B'"></div>
-                        <div th:if="${listB != null}">
-                            <div th:each="it : ${listB}"
-                                 th:text="${it.text}"
-                                 th:style="|background:${it.color}; padding:4px; border-radius:6px; margin:2px 0;|">
+                        <div class="slot-label"
+                             th:if="${listB == null or #lists.isEmpty(listB)}"
+                             th:text="${p} + 'B'"></div>
+
+                        <div th:if="${listB != null and !#lists.isEmpty(listB)}">
+                            <div th:each="it : ${listB}">
+                                <div class="course-pill"
+                                     th:style="|background:${it.color};|"
+                                     th:text="${it.continuation ? '' : it.text}">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -234,7 +303,7 @@
 
 
     <!-- 담은 과목 목록 -->
-    <div class="panel">
+    <div class="panel picked-panel">
         <h2>담은 과목</h2>
 
         <div th:if="${#lists.isEmpty(pickedCourseIds)}" class="small">
@@ -245,6 +314,7 @@
             <table class="excel-table">
                 <colgroup>
                     <col style="width:110px;">   <!-- 개설 -->
+                    <col style="width:60px;">   <!-- 이수구분 -->
                     <col style="width:60px;">   <!-- 코드 -->
                     <col style="width:120px;">  <!-- 과목명 -->
                     <col style="width:40px;">   <!-- 분반 -->
@@ -252,11 +322,14 @@
                     <col style="width:70px;">   <!-- 대상 -->
                     <col style="width:35px;">   <!-- 학점 -->
                     <col style="width:35px;">   <!-- 정원 -->
+                    <col style="width:130px;">   <!-- 시간 -->
+
                 </colgroup>
 
                 <thead>
                 <tr>
                     <th>개설</th>
+                    <th>이수구분</th>
                     <th>코드</th>
                     <th>과목명</th>
                     <th>분반</th>
@@ -264,6 +337,8 @@
                     <th>대상</th>
                     <th>학점</th>
                     <th>정원</th>
+                    <th>시간</th>
+
                 </tr>
                 </thead>
 
@@ -275,6 +350,8 @@
 
                     <!-- null도 깨지지 않게 수정 -->
                     <td th:text="${pc != null ? pc.opening : '-'}"></td>
+                    <td th:text="${pc.category}"></td>
+
                     <td th:text="${pc != null ? pc.courseCode : '-'}"
                         th:title="${pc != null ? pc.courseCode : ''}"></td>
                     <td class="truncate" th:text="${pc != null ? pc.courseName : '(missing ' + cid + ')'}"></td>
@@ -285,13 +362,8 @@
                         th:title="${pc != null ? pc.target : ''}"></td>
                     <td th:text="${pc != null ? pc.credits : '-'}"></td>
                     <td th:text="${pc != null ? pc.capacity : '-'}"></td>
+                    <td th:text="${pc != null ? pc.rawTimeText : '-'}"></td>
 
-<!--                    &lt;!&ndash; 숨겨진 과목 제거 기능(더블클릭) &ndash;&gt;-->
-<!--                    <td style="display:none;">-->
-<!--                        <form th:action="@{|/timetable/${timetable.id}/courses/remove|}" method="post">-->
-<!--                            <input type="hidden" name="courseId" th:value="${cid}"/>-->
-<!--                        </form>-->
-<!--                    </td>-->
                 </tr>
                 </tbody>
             </table>
@@ -304,7 +376,6 @@
 
     console.log("[timetable] script loaded, timetableId =", timetableId);
 
-    // CSRF(스프링 시큐리티 켜져있으면 필요)
     const csrfHeader = /*[[${_csrf != null ? _csrf.headerName : ''}]]*/ '';
     const csrfToken  = /*[[${_csrf != null ? _csrf.token : ''}]]*/ '';
 
