@@ -24,14 +24,14 @@ public class TimetableController {
     private final CourseTimeSlotRepository slotRepository;
 
     // 시간표 조회
-    @GetMapping("/timetables")
+    @GetMapping("/timetables/list")
     public String list(HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute("LOGIN_MEMBER_ID"); // 네 프로젝트 키로 맞춰
-        if (userId == null) return "redirect:/login"; // 혹은 예외 처리
+        Long userId = (Long) session.getAttribute("LOGIN_MEMBER_ID");
+        if (userId == null) return "redirect:/login";
 
         List<TimetableSummary> timetables = timetableService.getMyTimetables(userId);
 
-        // A안: 없으면 생성 화면으로
+        // 없으면 생성 화면으로
         if (timetables.isEmpty()) {
             return "redirect:/timetables/new?reason=empty";
         }

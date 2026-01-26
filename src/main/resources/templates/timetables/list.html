@@ -1,12 +1,13 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="utf-8"><title>내 시간표</title></head>
+<head><meta charset="utf-8">
+    <title>내 시간표</title></head>
 <body>
 <h1>내 시간표 목록</h1>
 
 <ul>
     <li th:each="t : ${timetables}">
-        <a th:href="@{|/timetables/${t.id}|}" th:text="${t.title}">시간표 제목</a>
+        <a th:href="@{/timetable(timetableId=${t.id})}" th:text="${t.title}">시간표 제목</a>
     </li>
 </ul>
 

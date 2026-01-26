@@ -16,21 +16,20 @@ import java.util.List;
 public class TimetablePageController {
     private final TimetablePageService timetablePageService;
 
+
     @GetMapping("/timetable")
     public String timetable(@RequestParam Long timetableId, Model model) {
         TimetablePageVM vm = timetablePageService.buildPage(timetableId);
-        model.addAttribute("vm", vm);
-        model.addAttribute("timetable", vm.getTimetable()); // ⭐ 추가
 
-//        model.addAttribute("timetable", vm.timetable());
-//        model.addAttribute("termId", vm.termId());
-//        model.addAttribute("courseList", vm.courseList());
-//        model.addAttribute("pickedCourseIds", vm.pickedCourseIds());
-//        model.addAttribute("pickedCourseMap", vm.pickedCourseMap());
-//        model.addAttribute("cellMap", vm.cellMap());
-//        model.addAttribute("days", List.of("월","화","수","목","금"));
-//        model.addAttribute("periods", buildPeriods(vm.maxPeriod()));
-//        model.addAttribute("periodTimeMap", buildPeriodTimeMap(vm.maxPeriod()));
+        model.addAttribute("timetable", vm.timetable());
+        model.addAttribute("termId", vm.termId());
+        model.addAttribute("courseList", vm.courseList());
+        model.addAttribute("pickedCourseIds", vm.pickedCourseIds());
+        model.addAttribute("pickedCourseMap", vm.pickedCourseMap());
+        model.addAttribute("cellMap", vm.cellMap());
+        model.addAttribute("days", List.of("월","화","수","목","금"));
+        model.addAttribute("periods", buildPeriods(vm.maxPeriod()));
+        model.addAttribute("periodTimeMap", buildPeriodTimeMap(vm.maxPeriod()));
         return "timetable";
     }
 
@@ -54,7 +53,7 @@ public class TimetablePageController {
         return "redirect:/timetable?timetableId=" + id;
     }
 
-    // 강의 제거
+    // 강의 삭제
     @PostMapping("/timetable/{id}/courses/remove")
     public String removeCourse(@PathVariable Long id, @RequestParam Long courseId) {
         timetablePageService.removeCourse(id, courseId);
