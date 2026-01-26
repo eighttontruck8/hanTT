@@ -1,6 +1,6 @@
 package org.example.Service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.DTO.CellItem;
 import org.example.Repository.*;
@@ -98,13 +98,13 @@ public class TimetablePageService {
 
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public void changeTitle(Long timetableId, String title) {
         Timetable tt = timetableRepository.findById(timetableId)
                 .orElseThrow(() -> new NoSuchElementException("시간표 없음 id=" + timetableId));
 
         String newTitle = (title == null || title.isBlank()) ? "새 시간표" : title.trim();
-        tt.changeTitle(newTitle); // ✅ 엔티티에서 setter 대신 메서드로
+        tt.changeTitle(newTitle);
     }
 
     @Transactional

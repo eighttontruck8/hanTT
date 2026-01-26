@@ -4,9 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-
 import static java.time.LocalDateTime.now;
 
 @Getter
@@ -30,11 +31,9 @@ public class Timetable {
     @Column(name = "visibility")
     private String visibility; // PUBLIC/PRIVATE
 
-    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -54,9 +53,10 @@ public class Timetable {
         return new Timetable(userId, termId, safe);
     }
 
+    @Transactional
     public void changeTitle(String title) {
         String safe = (title == null || title.isBlank()) ? "새 시간표" : title.trim();
         this.title = safe;
+        this.updatedAt = now();
     }
-
 }
