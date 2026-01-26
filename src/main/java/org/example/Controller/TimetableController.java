@@ -62,6 +62,6 @@ public class TimetableController {
 
     // 현재 학기
     private Long resolveCurrentTermId() {
-        return 2L;
+        return 1L;
     }
 }
